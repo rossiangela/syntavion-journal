@@ -1,32 +1,3 @@
-name: Create Paper Structure
-
-on:
-  workflow_dispatch:
-    inputs:
-      paper_id:
-        description: 'Paper ID (e.g., 001-parkinson-voice)'
-        required: true
-        type: string
-      year:
-        description: 'Publication year'
-        required: true
-        default: '2025'
-        type: string
-
-permissions:
-  contents: write
-  actions: read
-
-jobs:
-  create-structure:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          fetch-depth: 0
-
       - name: Create paper directory structure
         run: |
           PAPER_DIR=papers/${{ github.event.inputs.year }}/${{ github.event.inputs.paper_id }}
@@ -34,13 +5,10 @@ jobs:
             echo "❌ Directory $PAPER_DIR already exists. Exiting..."
             exit 1
           fi
-
           echo "📁 Creating directory at $PAPER_DIR"
           mkdir -p "$PAPER_DIR"
-
           echo "# Paper content goes here" > "$PAPER_DIR/paper.md"
           echo "# Upload your PDF here and rename it to paper.pdf" > "$PAPER_DIR/README.md"
-
           cat > "$PAPER_DIR/metadata.yml" << 'EOF'
 title: "Your Paper Title Here"
 authors:
@@ -51,7 +19,6 @@ authors:
 
 abstract: |
   Write your abstract here. Keep it under 300 words.
-
 keywords: 
   - "keyword1"
   - "keyword2"
@@ -108,24 +75,3 @@ EOF
   "notes": "Published in Syntavion Journal - Open Access Scientific Publishing for All Sciences"
 }
 EOF
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: Validate paper structure
-        run: |
-          pip install pyyaml
-          python validate_submission.py papers/${{ github.event.inputs.year }}/${{ github.event.inputs.paper_id }}
-
-      - name: Commit new structure
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "Syntavion Journal Bot"
-          git add .
-          if git diff --staged --quiet; then
-            echo "✅ No changes to commit"
-          else
-            git commit -m "📁 Created paper structure: papers/${{ github.event.inputs.year }}/${{ github.event.inputs.paper_id }}"
-            git push
