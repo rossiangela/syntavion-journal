@@ -1,53 +1,52 @@
-name: Update Website
+name: Publish to Zenodo and Deploy Site
 
 on:
   workflow_dispatch:
     inputs:
-      year:
-        description: 'Publication year'
-        required: true
-      paper_id:
-        description: 'Paper ID'
+      paper_path:
+        description: 'Path to paper (e.g. papers/2025/001-example)'
         required: true
 
 jobs:
-  update:
+  publish:
     runs-on: ubuntu-latest
+    environment: 
+      name: github-pages
+      url: https://syntavionjournal.org  # Usa HTTPS esplicitamente
+
     steps:
-      - uses: actions/checkout@v2
-      
-      - name: Update website
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install pyyaml requests jinja2
+
+      - name: Process Publication
         env:
+          ZENODO_TOKEN: ${{ secrets.ZENODO_TOKEN }}
           ZENODO_DOI: "10.5281/zenodo.15870031"
-          ZENODO_ID: "15870031"  # Estraibile automaticamente
         run: |
-          # Estrae l'ID dal DOI
+          # Estrai ID Zenodo
           ZENODO_ID=$(echo "$ZENODO_DOI" | cut -d'.' -f4)
           
-          # Genera la nuova entry HTML
-          python -c "
-          from jinja2 import Template
-          import yaml
-          
-          with open('_templates/paper_entry.html') as f:
-              template = Template(f.read())
-          
-          with open('papers/${{ inputs.year }}/${{ inputs.paper_id }}/metadata.yml') as f:
-              data = yaml.safe_load(f)
-          
-          html_entry = template.render(
-              zenodo_id='$ZENODO_ID',
-              doi='$ZENODO_DOI',
-              title=data['title'],
-              authors=[author['name'] for author in data['authors']],
-              volume=data['volume'],
-              issue=data['issue'],
-              year='${{ inputs.year }}'
-          )
-          
-          # Inietta nel file del sito
-          with open('docs/archives.html', 'r+') as f:
-              content = f.read()
-              f.seek(0)
-              f.write(content.replace('<!-- NEW_ENTRIES -->', f'{html_entry}\n<!-- NEW_ENTRIES -->'))
-          "
+          # Elabora il paper
+          python scripts/zenodo_upload.py "${{ inputs.paper_path }}"
+          python scripts/generate_pages.py "${{ inputs.paper_path }}"
+
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v2
+        with:
+          target-branch: gh-pages
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Verify HTTPS
+        run: |
+          if curl -s https://syntavionjournal.org | grep "Your Paper Title"; then
+            echo "✅ Sito pubblicato con HTTPS"
+          else
+            echo "⚠️ Attenzione: HTTPS non attivo!"
+          fi
