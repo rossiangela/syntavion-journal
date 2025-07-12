@@ -27,9 +27,12 @@ jobs:
         run: pip install pyyaml requests jinja2 markdown
 
       - name: Validate Submission
+        id: validate
         run: python scripts/validate_submission.py "${{ inputs.paper_path }}"
 
       - name: Publish to Zenodo
+        id: zenodo
+        if: steps.validate.outcome == 'success'
         env:
           ZENODO_TOKEN: ${{ secrets.ZENODO_TOKEN }}
           JOURNAL_DOI: "10.5281/zenodo.15870031"
@@ -39,6 +42,7 @@ jobs:
             --journal-doi "$JOURNAL_DOI"
 
       - name: Generate Website Content
+        if: steps.zenodo.outcome == 'success'
         run: |
           python scripts/generate_paper_page.py "${{ inputs.paper_path }}"
           python scripts/generate_archives.py
@@ -49,7 +53,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v2
         with:
-          path: './'  # Or your build directory
+          path: './'
 
       - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v3
