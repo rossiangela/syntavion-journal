@@ -4,12 +4,16 @@ on:
   workflow_dispatch:
     inputs:
       paper_path:
-        description: 'Path to paper (e.g. papers/2025/001-parkinson-voice)'
+        description: 'Path to paper (e.g. papers/2025/001-example)'
         required: true
 
 jobs:
   publish:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
     environment: 
       name: github-pages
       url: https://syntavionjournal.org
@@ -23,9 +27,7 @@ jobs:
           python-version: '3.11'
 
       - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install pyyaml requests jinja2 markdown
+        run: pip install pyyaml requests jinja2 markdown
 
       - name: Validate Submission
         run: python scripts/validate_submission.py "${{ inputs.paper_path }}"
@@ -45,7 +47,4 @@ jobs:
           python scripts/generate_archives.py
 
       - name: Deploy to GitHub Pages
-        uses: actions/deploy-pages@v2
-        with:
-          target-branch: gh-pages
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+        uses: actions/deploy-pages@v3
