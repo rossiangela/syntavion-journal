@@ -1,17 +1,23 @@
-- name: Create .zenodo.json for article
-  run: |
-    PAPER_DIR="papers/${{ inputs.year }}/${{ inputs.paper_id }}"
-    cat > "$PAPER_DIR/.zenodo.json" << EOF
-    {
-      "title": "$(jq -r '.title' $PAPER_DIR/metadata.yml)",
-      "description": "$(jq -r '.abstract' $PAPER_DIR/metadata.yml | tr '\n' ' ')",
-      "creators": $(yq -o json '.authors' $PAPER_DIR/metadata.yml),
-      "related_identifiers": [
-        {
-          "identifier": "10.5281/zenodo.15870031",
-          "relation": "isPartOf",
-          "resource_type": "publication-journal"
-        }
-      ]
-    }
-    EOF
+name: Create Paper Structure
+
+on:
+  workflow_dispatch:
+    inputs:
+      paper_id:
+        description: 'Paper ID (e.g., 001-parkinson-voice)'
+        required: true
+        type: string
+      year:
+        description: 'Publication year'
+        required: true
+        default: '2025'
+        type: string
+
+jobs:
+  create-structure:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Altri steps qui...
