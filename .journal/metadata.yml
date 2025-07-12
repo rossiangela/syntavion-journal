@@ -1,6 +1,16 @@
-journal:
-  title: "Syntavion Journal"
-  issn: ""  # Se disponibile
-  doi: "10.5281/zenodo.15870031"  # DOI del Journal
-  volume: 1
-  issue: 1
+{
+  "title": "Syntavion Journal",
+  "description": "Open Access Journal for Biomedical Engineering",
+  "upload_type": "publication",
+  "publication_type": "journal",
+  "doi": "10.5281/zenodo.15870031",
+  "communities": [{"identifier": "syntavionjournal"}],
+  "license": "CC-BY-4.0",
+  "related_identifiers": [
+    {
+      "identifier": "https://syntavionjournal.org", 
+      "relation": "isIdenticalTo",
+      "resource_type": "publication-journal"
+    }
+  ]
+}
