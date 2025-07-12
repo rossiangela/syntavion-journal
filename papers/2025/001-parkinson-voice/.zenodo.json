@@ -1,46 +1,14 @@
 {
-  "title": "Diagnosing Parkinson's Disease from Voice Using Random Forest and Conversion in TensorFlow Lite",
-  "description": "This project presents a machine learning system for diagnosing Parkinson's disease through voice analysis using Random Forest classification. The model achieved 92% overall accuracy and 97% recall for Parkinson's patients, with an AUC-ROC of 0.96.",
-  "creators": [
-    {
-      "name": "Rossi, Angela",
-      "affiliation": "Syntavion Publishing",
-      "orcid": "0009-0001-8485-8666"
-    }
-  ],
-  "keywords": [
-    "Parkinson's disease",
-    "voice analysis",
-    "machine learning",
-    "Random Forest",
-    "TensorFlow Lite",
-    "medical diagnosis",
-    "mobile health",
-    "biomedical engineering"
-  ],
-  "license": "CC-BY-4.0",
+  "title": "Diagnosing Parkinson's Disease from Voice Using Random Forest",
+  "description": "Machine learning system for Parkinson's diagnosis...",
   "upload_type": "publication",
   "publication_type": "article",
-  "access_right": "open",
-  "communities": [
-    {
-      "identifier": "syntavionjournal"
-    }
-  ],
-  "journal_title": "Syntavion Journal",
-  "journal_volume": "1",
-  "journal_issue": "1",
+  "communities": [{"identifier": "syntavionjournal"}],
   "related_identifiers": [
     {
-      "identifier": "https://syntavionjournal.org",
+      "identifier": "10.5281/zenodo.15870031",  # DOI del Journal
       "relation": "isPartOf",
       "resource_type": "publication-journal"
-    },
-    {
-      "identifier": "https://colab.research.google.com/drive/1qGACQUX93sNMQaCItZWpgJcER7USNs5y?usp=sharing",
-      "relation": "isSupplementedBy",
-      "resource_type": "software"
     }
-  ],
-  "notes": "First paper published in Syntavion Journal - Open Access Scientific Publishing for All Sciences. Includes Google Colab implementation."
+  ]
 }
