@@ -1,0 +1,107 @@
+# ============ .github/workflows/publish-paper.yml (FIXED VERSION) ============
+name: Publish Paper to Zenodo
+
+on:
+  push:
+    paths:
+      - 'papers/**'
+  workflow_dispatch:
+    inputs:
+      paper_path:
+        description: 'Path to paper directory (e.g., papers/2025/001-parkinson-voice)'
+        required: true
+        type: string
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch full history
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install pyyaml requests markdown jinja2
+
+      - name: Find changed papers
+        id: find-papers
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "paper_dirs=${{ github.event.inputs.paper_path }}" >> $GITHUB_OUTPUT
+          else
+            # Find changed paper directories more safely
+            if [ "${{ github.event.before }}" = "0000000000000000000000000000000000000000" ]; then
+              # First commit or no previous commit
+              changed_files=$(git ls-files papers/)
+            else
+              # Normal commit with previous commit available
+              if git cat-file -e ${{ github.event.before }} 2>/dev/null; then
+                changed_files=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
+              else
+                # Fallback: use last 2 commits
+                changed_files=$(git diff --name-only HEAD~1 HEAD 2>/dev/null || git ls-files papers/)
+              fi
+            fi
+            
+            paper_dirs=$(echo "$changed_files" | grep '^papers/' | cut -d'/' -f1-3 | sort -u | tr '\n' ' ')
+            echo "paper_dirs=$paper_dirs" >> $GITHUB_OUTPUT
+            echo "Found paper directories: $paper_dirs"
+          fi
+
+      - name: Validate papers
+        run: |
+          for paper_dir in ${{ steps.find-papers.outputs.paper_dirs }}; do
+            if [ -d "$paper_dir" ] && [ "$paper_dir" != "papers/template" ]; then
+              echo "✅ Validating $paper_dir"
+              python scripts/validate_submission.py "$paper_dir"
+            else
+              echo "⚠️ Skipping $paper_dir (not a directory or template)"
+            fi
+          done
+
+      - name: Upload to Zenodo and generate pages
+        env:
+          ZENODO_TOKEN: ${{ secrets.ZENODO_TOKEN }}
+        run: |
+          for paper_dir in ${{ steps.find-papers.outputs.paper_dirs }}; do
+            if [ -d "$paper_dir" ] && [ "$paper_dir" != "papers/template" ]; then
+              echo "🔄 Processing $paper_dir"
+              
+              # Check if already has DOI
+              if ! grep -q "doi:" "$paper_dir/metadata.yml" || grep -q "doi: null" "$paper_dir/metadata.yml" || grep -q 'doi: ""' "$paper_dir/metadata.yml" || grep -q "doi: ~" "$paper_dir/metadata.yml"; then
+                echo "📤 Uploading to Zenodo..."
+                python scripts/zenodo_upload.py "$paper_dir"
+              else
+                echo "ℹ️ Paper already has DOI, skipping Zenodo upload"
+              fi
+              
+              # Generate paper page
+              echo "📄 Generating paper page..."
+              python scripts/generate_paper_page.py "$paper_dir"
+            fi
+          done
+
+      - name: Update archives
+        run: |
+          echo "📚 Updating archives..."
+          python scripts/generate_archives.py
+
+      - name: Commit and push changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "Syntavion Journal Bot"
+          git add .
+          if git diff --staged --quiet; then
+            echo "ℹ️ No changes to commit"
+          else
+            git commit -m "📄 Published paper(s) and updated archives [skip ci]"
+            git push
+          fi
