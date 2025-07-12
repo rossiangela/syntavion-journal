@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagnosing Parkinson's Disease from Voice Using Random Forest and Conversion in TensorFlow Lite - Syntavion Journal</title>
+    <link rel="stylesheet" href="../../../style.css">
+    <style>
+        .paper-header {
+            background: white;
+            padding: 3rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        .paper-title {
+            color: #1e3a8a;
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            line-height: 1.3;
+        }
+        .authors {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        .author {
+            padding: 1.5rem;
+            background: #f8fafc;
+            border-radius: 10px;
+            border-left: 4px solid #3b82f6;
+        }
+        .paper-content {
+            background: white;
+            padding: 3rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            line-height: 1.6;
+        }
+        .paper-meta {
+            background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+            color: white;
+            padding: 2rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+        }
+        .paper-meta a {
+            color: #93c5fd;
+            text-decoration: none;
+        }
+        .paper-meta a:hover {
+            text-decoration: underline;
+        }
+        .download-section {
+            text-align: center;
+            margin: 2rem 0;
+            padding: 2rem;
+            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+            border-radius: 15px;
+        }
+        .cta-button {
+            display: inline-block;
+            padding: 1rem 2rem;
+            margin: 0.5rem;
+            background: #3b82f6;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        .cta-button:hover {
+            background: #1e40af;
+            transform: translateY(-2px);
+        }
+        .citation-box {
+            background: #f8fafc;
+            padding: 1.5rem;
+            border-radius: 10px;
+            border-left: 4px solid #10b981;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            margin: 1rem 0;
+        }
+        .back-links {
+            text-align: center;
+            margin: 3rem 0;
+            padding: 2rem;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                        <g stroke="#1e3a8a" stroke-width="8" fill="none">
+                            <circle cx="100" cy="100" r="12" fill="#1e3a8a"/>
+                            <ellipse cx="100" cy="100" rx="60" ry="25" transform="rotate(0 100 100)"/>
+                            <ellipse cx="100" cy="100" rx="60" ry="25" transform="rotate(60 100 100)"/>
+                            <ellipse cx="100" cy="100" rx="60" ry="25" transform="rotate(120 100 100)"/>
+                        </g>
+                    </svg>
+                </div>
+                <h1>SYNTAVION JOURNAL</h1>
+                <p>Open Access Scientific Publishing for All Sciences</p>
+            </div>
+        </div>
+    </header>
+
+    <nav>
+        <div class="container">
+            <div class="nav-links">
+                <a href="../../../index.html">Home</a>
+                <a href="../../../about.html">About</a>
+                <a href="../../../submit.html">Submit</a>
+                <a href="../../../archives.html">Archives</a>
+                <a href="../../../editorial-board.html">Editorial Board</a>
+                <a href="../../../contact.html">Contact</a>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <div class="container">
+            <div class="paper-header">
+                <h1 class="paper-title">Diagnosing Parkinson's Disease from Voice Using Random Forest and Conversion in TensorFlow Lite</h1>
+                
+                <div class="authors">
+                    <div class="author">
+                        <strong>Angela Rossi</strong> 
+                        <a href="https://orcid.org/0009-0001-8485-8666" target="_blank" title="ORCID">🔗</a><br>
+                        <em>Syntavion Publishing</em><br>
+                        <a href="mailto:angela.rossi393@gmail.com">angela.rossi393@gmail.com</a>
+                    </div>
+                </div>
+                
+                <div class="paper-meta">
+                    <p><strong>📄 DOI:</strong> <a href="https://doi.org/10.5281/zenodo.15870658" target="_blank">10.5281/zenodo.15870658</a></p>
+                    <p><strong>📅 Published:</strong> January 20, 2025</p>
+                    <p><strong>🏷️ Keywords:</strong> Parkinson's disease, voice analysis, machine learning, Random Forest, TensorFlow Lite, medical diagnosis, mobile health, biomedical engineering</p>
+                    <p><strong>🔬 Field:</strong> Biomedical Engineering</p>
+                    <p><strong>📖 License:</strong> CC BY 4.0 (Open Access)</p>
+                    <p><strong>📊 Journal Info:</strong> Volume 1, Issue 1, Article 1</p>
+                </div>
+            </div>
+
+            <div class="download-section">
+                <h3>📄 Access This Paper</h3>
+                <p>First paper published in Syntavion Journal! 🎉</p>
+                <a href="paper.pdf" class="cta-button" target="_blank">📄 Download PDF</a>
+                <a href="https://doi.org/10.5281/zenodo.15870658" class="cta-button" target="_blank">🔗 View on Zenodo</a>
+                <a href="https://colab.research.google.com/drive/1qGACQUX93sNMQaCItZWpgJcER7USNs5y?usp=sharing" class="cta-button" target="_blank">💻 Google Colab Code</a>
+            </div>
+
+            <div class="paper-content">
+                <h2>🎯 Abstract</h2>
+                <p>This project presents a machine learning system for diagnosing Parkinson's disease through voice analysis using Random Forest classification. The model achieved <strong>92% overall accuracy</strong> and <strong>97% recall</strong> for Parkinson's patients, with an AUC-ROC of 0.96. The trained model was successfully converted to TensorFlow Lite for deployment on mobile devices and embedded systems, enabling real-time diagnostic support in clinical settings. The system analyzes 22 voice features including jitter, shimmer, and harmonic-to-noise ratios to distinguish between healthy individuals and those with Parkinson's disease.</p>
+
+                <h2>🔬 Research Highlights</h2>
+                <ul>
+                    <li><strong>High Accuracy:</strong> 92% overall accuracy with 97% recall for Parkinson's detection</li>
+                    <li><strong>Mobile-Ready:</strong> TensorFlow Lite conversion for smartphone deployment</li>
+                    <li><strong>Non-Invasive:</strong> Voice analysis - no physical examinations required</li>
+                    <li><strong>Clinical Applicability:</strong> Real-time diagnostic support for healthcare professionals</li>
+                    <li><strong>Feature Analysis:</strong> 22 voice characteristics including jitter, shimmer, and noise ratios</li>
+                </ul>
+
+                <h2>📊 Key Results</h2>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 2rem 0;">
+                    <div style="background: #f0f9ff; padding: 1rem; border-radius: 8px; text-align: center;">
+                        <strong style="color: #0284c7; font-size: 1.5rem;">92%</strong><br>
+                        Overall Accuracy
+                    </div>
+                    <div style="background: #f0fdf4; padding: 1rem; border-radius: 8px; text-align: center;">
+                        <strong style="color: #16a34a; font-size: 1.5rem;">97%</strong><br>
+                        Recall (Parkinson's)
+                    </div>
+                    <div style="background: #fef3f2; padding: 1rem; border-radius: 8px; text-align: center;">
+                        <strong style="color: #dc2626; font-size: 1.5rem;">0.96</strong><br>
+                        AUC-ROC Score
+                    </div>
+                    <div style="background: #fefbeb; padding: 1rem; border-radius: 8px; text-align: center;">
+                        <strong style="color: #d97706; font-size: 1.5rem;">195</strong><br>
+                        Dataset Samples
+                    </div>
+                </div>
+
+                <h2>🛠️ Methodology</h2>
+                <p>The research employed a <strong>Random Forest Classifier</strong> optimized through GridSearchCV for robust performance on the unbalanced dataset. Key technical aspects include:</p>
+                <ul>
+                    <li><strong>Algorithm:</strong> Random Forest with 100 estimators</li>
+                    <li><strong>Optimization:</strong> GridSearchCV for hyperparameter tuning</li>
+                    <li><strong>Dataset:</strong> 195 samples (147 Parkinson's, 48 healthy)</li>
+                    <li><strong>Features:</strong> 22 voice characteristics including frequency, jitter, and shimmer measures</li>
+                    <li><strong>Deployment:</strong> TensorFlow Lite conversion for mobile platforms</li>
+                </ul>
+
+                <h2>🎯 Clinical Significance</h2>
+                <p>This work addresses the critical need for <strong>early Parkinson's detection</strong> through non-invasive methods. Voice analysis offers several advantages:</p>
+                <ul>
+                    <li><strong>Early Detection:</strong> Vocal symptoms often appear before motor symptoms</li>
+                    <li><strong>Accessibility:</strong> Can be deployed in underserved areas</li>
+                    <li><strong>Cost-Effective:</strong> No specialized equipment required</li>
+                    <li><strong>Remote Monitoring:</strong> Enables telemedicine applications</li>
+                </ul>
+
+                <h2>💻 Implementation & Code</h2>
+                <p>The complete implementation is available as an interactive Google Colab notebook, allowing researchers to:</p>
+                <ul>
+                    <li>Reproduce all experimental results</li>
+                    <li>Test the model with new voice samples</li>
+                    <li>Modify and extend the approach</li>
+                    <li>Convert the model to TensorFlow Lite</li>
+                </ul>
+                
+                <div style="text-align: center; margin: 2rem 0;">
+                    <a href="https://colab.research.google.com/drive/1qGACQUX93sNMQaCItZWpgJcER7USNs5y?usp=sharing" class="cta-button" target="_blank">🚀 Open Interactive Code</a>
+                </div>
+
+                <h2>📝 How to Cite</h2>
+                <div class="citation-box">
+Rossi, A. (2025). Diagnosing Parkinson's Disease from Voice Using Random Forest and Conversion in TensorFlow Lite. <em>Syntavion Journal</em>, 1(1), 1. https://doi.org/10.5281/zenodo.15870658
+                </div>
+
+                <h2>🔗 Related Links</h2>
+                <ul>
+                    <li><a href="https://doi.org/10.5281/zenodo.15870658" target="_blank">Paper on Zenodo (with datasets)</a></li>
+                    <li><a href="https://zenodo.org/communities/syntavionjournal" target="_blank">Syntavion Journal Community</a></li>
+                    <li><a href="https://scholar.google.com/scholar?q=Diagnosing+Parkinson%27s+Disease+voice+Random+Forest" target="_blank">Related Research on Google Scholar</a></li>
+                </ul>
+            </div>
+
+            <div class="back-links">
+                <a href="../../../archives.html" class="cta-button">← Browse All Papers</a>
+                <a href="../../../submit.html" class="cta-button">Submit Your Research</a>
+                <a href="https://doi.org/10.5281/zenodo.15870658" class="cta-button" target="_blank">📎 Cite This Work</a>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div style="text-align: center; padding: 2rem; color: white;">
+                <p>&copy; 2025 Syntavion Journal. All rights reserved. | Open Access Scientific Publishing | CC BY 4.0 License</p>
+                <p>🎉 <strong>First Paper Published!</strong> | DOI: <a href="https://doi.org/10.5281/zenodo.15870658" style="color: #93c5fd;">10.5281/zenodo.15870658</a></p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
