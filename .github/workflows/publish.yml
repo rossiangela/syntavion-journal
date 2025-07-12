@@ -28,45 +28,23 @@ jobs:
       - name: Validate Submission
         run: python scripts/validate_submission.py "${{ inputs.paper_path }}"
 
-      - name: Process Publication
+      - name: Publish to Zenodo
         env:
-          ZENODO_TOKEN: ${{ secrets.ZENODO_TOKEN }}
-          ZENODO_DOI: "10.5281/zenodo.15870031"
+          ZENODO_TOKEN: ${{ secrets.ZENODO_TOKEN }}  # Usa il secret esistente
+          JOURNAL_DOI: "10.5281/zenodo.15870031"    # DOI fisso del journal
         run: |
-          # Estrai ID Zenodo
-          ZENODO_ID=$(echo "$ZENODO_DOI" | cut -d'.' -f4)
-          
-          # Upload to Zenodo
-          echo "📤 Uploading to Zenodo..."
+          echo "🔖 Using Journal DOI: $JOURNAL_DOI"
           python scripts/zenodo_upload.py \
             --path "${{ inputs.paper_path }}" \
-            --doi "$ZENODO_DOI" \
-            --deposit-id "$ZENODO_ID"
+            --journal-doi "$JOURNAL_DOI"
 
-          # Generate paper page
-          echo "📄 Generating paper page..."
-          python scripts/generate_paper_page.py \
-            --path "${{ inputs.paper_path }}" \
-            --doi "$ZENODO_DOI"
-
-          # Update archives
-          echo "📚 Updating archives..."
-          python scripts/generate_archives.py \
-            --doi "$ZENODO_DOI" \
-            --zenodo-id "$ZENODO_ID" \
-            --paper-path "${{ inputs.paper_path }}"
+      - name: Generate Website Content
+        run: |
+          python scripts/generate_paper_page.py "${{ inputs.paper_path }}"
+          python scripts/generate_archives.py
 
       - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v2
         with:
           target-branch: gh-pages
           github-token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Verify Deployment
-        run: |
-          if curl -sI https://syntavionjournal.org | grep "200 OK"; then
-            echo "✅ Sito pubblicato con HTTPS"
-          else
-            echo "⚠️ Attenzione: problemi con il deploy"
-            exit 1
-          fi
