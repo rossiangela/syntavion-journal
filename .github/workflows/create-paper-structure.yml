@@ -1,4 +1,33 @@
-      name: Create paper directory structure
+name: Create Paper Structure
+
+on:
+  workflow_dispatch:
+    inputs:
+      paper_id:
+        description: 'Paper ID (e.g., 001-parkinson-voice)'
+        required: true
+        type: string
+      year:
+        description: 'Publication year'
+        required: true
+        default: '2025'
+        type: string
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  create-structure:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Create paper directory structure
         run: |
           PAPER_DIR=papers/${{ github.event.inputs.year }}/${{ github.event.inputs.paper_id }}
           if [ -d "$PAPER_DIR" ]; then
@@ -9,69 +38,91 @@
           mkdir -p "$PAPER_DIR"
           echo "# Paper content goes here" > "$PAPER_DIR/paper.md"
           echo "# Upload your PDF here and rename it to paper.pdf" > "$PAPER_DIR/README.md"
+          
           cat > "$PAPER_DIR/metadata.yml" << 'EOF'
-title: "Your Paper Title Here"
-authors:
-  - name: "Your Name"
-    affiliation: "Your Institution"
-    email: "your.email@domain.com"
-    orcid: "0000-0000-0000-0000"
+          title: "Your Paper Title Here"
+          authors:
+            - name: "Your Name"
+              affiliation: "Your Institution"
+              email: "your.email@domain.com"
+              orcid: "0000-0000-0000-0000"
 
-abstract: |
-  Write your abstract here. Keep it under 300 words.
-keywords: 
-  - "keyword1"
-  - "keyword2"
-  - "keyword3"
+          abstract: |
+            Write your abstract here. Keep it under 300 words.
+          keywords: 
+            - "keyword1"
+            - "keyword2"
+            - "keyword3"
 
-submission_date: null
-acceptance_date: null
-publication_date: null
-doi: null
-zenodo_id: null
+          submission_date: null
+          acceptance_date: null
+          publication_date: null
+          doi: null
+          zenodo_id: null
 
-volume: 1
-issue: 1
-article_number: null
-field: "Your Field"
-license: "CC BY 4.0"
-EOF
+          volume: 1
+          issue: 1
+          article_number: null
+          field: "Your Field"
+          license: "CC BY 4.0"
+          EOF
 
           cat > "$PAPER_DIR/.zenodo.json" << 'EOF'
-{
-  "title": "Your Paper Title Here",
-  "description": "Write your abstract here. Keep it under 300 words.",
-  "creators": [
-    {
-      "name": "Name, Your",
-      "affiliation": "Your Institution",
-      "orcid": "0000-0000-0000-0000"
-    }
-  ],
-  "keywords": [
-    "keyword1",
-    "keyword2",
-    "keyword3"
-  ],
-  "license": "CC-BY-4.0",
-  "upload_type": "publication",
-  "publication_type": "article",
-  "access_right": "open",
-  "communities": [
-    {
-      "identifier": "syntavionjournal"
-    }
-  ],
-  "journal_title": "Syntavion Journal",
-  "journal_volume": "1",
-  "journal_issue": "1",
-  "related_identifiers": [
-    {
-      "identifier": "https://syntavionjournal.org",
-      "relation": "isPartOf",
-      "resource_type": "publication-journal"
-    }
-  ],
-  "notes": "Published in Syntavion Journal - Open Access Scientific Publishing for All Sciences"
-}
-EOF
+          {
+            "title": "Your Paper Title Here",
+            "description": "Write your abstract here. Keep it under 300 words.",
+            "creators": [
+              {
+                "name": "Name, Your",
+                "affiliation": "Your Institution",
+                "orcid": "0000-0000-0000-0000"
+              }
+            ],
+            "keywords": [
+              "keyword1",
+              "keyword2",
+              "keyword3"
+            ],
+            "license": "CC-BY-4.0",
+            "upload_type": "publication",
+            "publication_type": "article",
+            "access_right": "open",
+            "communities": [
+              {
+                "identifier": "syntavionjournal"
+              }
+            ],
+            "journal_title": "Syntavion Journal",
+            "journal_volume": "1",
+            "journal_issue": "1",
+            "related_identifiers": [
+              {
+                "identifier": "https://syntavionjournal.org",
+                "relation": "isPartOf",
+                "resource_type": "publication-journal"
+              }
+            ],
+            "notes": "Published in Syntavion Journal - Open Access Scientific Publishing for All Sciences"
+          }
+          EOF
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Validate paper structure
+        run: |
+          pip install pyyaml
+          python validate_submission.py papers/${{ github.event.inputs.year }}/${{ github.event.inputs.paper_id }}
+
+      - name: Commit new structure
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "Syntavion Journal Bot"
+          git add .
+          if git diff --staged --quiet; then
+            echo "✅ No changes to commit"
+          else
+            git commit -m "📁 Created paper structure: papers/${{ github.event.inputs.year }}/${{ github.event.inputs.paper_id }}"
+            git push
