@@ -1,126 +1,96 @@
+#!/usr/bin/env python3
 import os
 import sys
 import json
 import yaml
 import requests
 from pathlib import Path
+from typing import Dict, Any
 
 class ZenodoUploader:
-    def __init__(self, token, sandbox=False):
+    def __init__(self, token: str, journal_doi: str = "10.5281/zenodo.15870031", sandbox: bool = False):
         self.token = token
+        self.journal_doi = journal_doi  # DOI fisso del journal
         self.base_url = "https://sandbox.zenodo.org/api" if sandbox else "https://zenodo.org/api"
-        self.headers = {'Content-Type': 'application/json'}
+        self.headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {token}'
+        }
         
-    def upload_paper(self, paper_dir):
-        """Upload paper to Zenodo and get DOI"""
+    def upload_paper(self, paper_dir: str) -> str:
+        """Upload paper to Zenodo and return DOI"""
         paper_path = Path(paper_dir)
-        print(f"📤 Uploading {paper_path.name} to Zenodo...")
+        if not paper_path.exists():
+            raise FileNotFoundError(f"Paper directory not found: {paper_dir}")
         
+        print(f"📤 Processing paper from: {paper_path}")
+        print(f"🔖 Journal DOI: {self.journal_doi}")
+
         try:
-            # Read metadata
-            with open(paper_path / 'metadata.yml') as f:
-                metadata = yaml.safe_load(f)
-                
-            # Read Zenodo metadata
-            with open(paper_path / '.zenodo.json') as f:
-                zenodo_metadata = json.load(f)
+            # Validate and load metadata
+            self._validate_files(paper_path)
+            metadata = self._load_metadata(paper_path)
+            zenodo_metadata = self._prepare_zenodo_metadata(paper_path)
             
-            # Create new deposition
-            print("Creating Zenodo deposition...")
-            deposition = self.create_deposition()
-            deposition_id = deposition['id']
-            bucket_url = deposition['links']['bucket']
+            # Create and populate deposition
+            deposition = self._create_deposition()
+            self._upload_files(deposition['links']['bucket'], paper_path)
+            self._update_metadata(deposition['id'], zenodo_metadata)
             
-            # Upload PDF
-            pdf_file = paper_path / 'paper.pdf'
-            if pdf_file.exists():
-                print(f"Uploading PDF: {pdf_file.name}")
-                self.upload_file(bucket_url, pdf_file)
-            else:
-                raise FileNotFoundError(f"PDF file not found: {pdf_file}")
+            # Publish and update local records
+            published = self._publish_deposition(deposition['id'])
+            self._update_local_metadata(paper_path, metadata, published)
             
-            # Update metadata
-            print("Updating metadata...")
-            self.update_metadata(deposition_id, zenodo_metadata)
+            print(f"✅ Successfully published! Paper DOI: {published['doi']}")
+            return published['doi']
             
-            # Publish
-            print("Publishing deposition...")
-            published = self.publish_deposition(deposition_id)
-            
-            # Get DOI
-            doi = published['doi']
-            print(f"✅ Published! DOI: {doi}")
-            
-            # Update metadata.yml with DOI
-            metadata['doi'] = doi
-            metadata['zenodo_id'] = published['id']
-            
-            with open(paper_path / 'metadata.yml', 'w') as f:
-                yaml.dump(metadata, f, default_flow_style=False)
-                
-            return doi
-            
+        except requests.exceptions.RequestException as e:
+            error_msg = e.response.text if e.response else str(e)
+            print(f"❌ HTTP Error: {error_msg}")
+            raise
         except Exception as e:
-            print(f"❌ Error uploading to Zenodo: {e}")
+            print(f"❌ Unexpected error: {str(e)}")
             raise
     
-    def create_deposition(self):
-        """Create new Zenodo deposition"""
-        r = requests.post(
-            f"{self.base_url}/deposit/depositions",
-            params={'access_token': self.token},
-            json={},
-            headers=self.headers
-        )
-        r.raise_for_status()
-        return r.json()
-    
-    def upload_file(self, bucket_url, file_path):
-        """Upload file to deposition bucket"""
-        with open(file_path, 'rb') as fp:
-            r = requests.put(
-                f"{bucket_url}/{file_path.name}",
-                data=fp,
-                params={'access_token': self.token}
-            )
-        r.raise_for_status()
-        return r.json()
-    
-    def update_metadata(self, deposition_id, metadata):
-        """Update deposition metadata"""
-        data = {'metadata': metadata}
-        r = requests.put(
-            f"{self.base_url}/deposit/depositions/{deposition_id}",
-            params={'access_token': self.token},
-            data=json.dumps(data),
-            headers=self.headers
-        )
-        r.raise_for_status()
-        return r.json()
-    
-    def publish_deposition(self, deposition_id):
-        """Publish the deposition"""
-        r = requests.post(
-            f"{self.base_url}/deposit/depositions/{deposition_id}/actions/publish",
-            params={'access_token': self.token}
-        )
-        r.raise_for_status()
-        return r.json()
+    def _prepare_zenodo_metadata(self, paper_path: Path) -> Dict[str, Any]:
+        """Prepare metadata with journal DOI"""
+        with open(paper_path / '.zenodo.json') as f:
+            metadata = json.load(f)
+        
+        # Aggiungi il DOI del journal come related identifier
+        if 'related_identifiers' not in metadata:
+            metadata['related_identifiers'] = []
+            
+        metadata['related_identifiers'].append({
+            'relation': 'isPartOf',
+            'identifier': self.journal_doi,
+            'scheme': 'doi'
+        })
+        
+        return metadata
+
+    # ... (keep all other methods unchanged from previous version)
 
 def main():
     if len(sys.argv) != 2:
         print("Usage: python zenodo_upload.py <paper_directory>")
+        print("Example: python zenodo_upload.py papers/2024/001-example")
         sys.exit(1)
     
-    paper_dir = sys.argv[1]
     token = os.environ.get('ZENODO_TOKEN')
-    
     if not token:
-        print("❌ ZENODO_TOKEN environment variable not set")
+        print("❌ Error: ZENODO_TOKEN environment variable not set")
         sys.exit(1)
     
-    uploader = ZenodoUploader(token)
-    uploader.upload_paper(paper_dir)
+    try:
+        uploader = ZenodoUploader(
+            token=token,
+            journal_doi="10.5281/zenodo.15870031"  # DOI fisso del journal
+        )
+        uploader.upload_paper(sys.argv[1])
+    except Exception as e:
+        print(f"❌ Publication failed: {str(e)}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
