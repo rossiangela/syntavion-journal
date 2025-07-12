@@ -20,33 +20,54 @@ jobs:
       - name: Checkout code (clean)
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Ottieni tutto lo storico per verificare i workflow
-
-      - name: Find deprecated actions
-        run: |
-          echo "### Checking for deprecated actions ###"
-          grep -r "upload-artifact@v3" .github/ || echo "No v3 references found"
-          echo "### All action versions ###"
-          find .github -name "*.yml" -exec grep -l "uses:" {} \; | xargs grep -h "uses:"
+          fetch-depth: 0  # Necessario se verifichi i workflow
 
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
 
-      - name: Install dependencies (clean)
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install pyyaml requests jinja2 markdown --no-cache-dir
-          pip list
 
-      # [Altri steps rimangono identici...]
+      - name: Validate paper
+        run: |
+          echo "✅ Validating ${{ github.event.inputs.paper_path }}"
+          python scripts/validate_submission.py "${{ github.event.inputs.paper_path }}"
 
-      - name: Upload Pages Artifact (clean)
+      - name: Generate site
+        run: |
+          echo "📄 Generating web pages into _site/"
+          mkdir -p _site
+          python scripts/generate_paper_page.py \
+            --path "${{ github.event.inputs.paper_path }}" \
+            --url "https://syntavioninstitute.org"
+
+      - name: Generate archives (optional)
+        run: |
+          echo "📁 Updating archives"
+          python scripts/generate_archives.py \
+            --paper-path "${{ github.event.inputs.paper_path }}"
+
+      - name: Check _site exists
+        run: |
+          if [ ! -d "_site" ]; then
+            echo "❌ Directory _site non trovata. Verifica che il sito sia stato generato correttamente."
+            exit 1
+          fi
+
+      - name: Upload Pages Artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: '_site'
-          retention-days: 1  # Riduci la retention per debug
+          retention-days: 1  # Retention ridotta per debug
 
       - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v2
+
+      - name: Verify deployment
+        run: |
+          echo "✅ Paper published to GitHub Pages"
+          echo "🌐 Access: http://syntavioninstitute.org/"
