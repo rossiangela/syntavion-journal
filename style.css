@@ -1194,3 +1194,82 @@ footer {
 
 .info-card h3 {
     color: #1
+
+
+
+/* Paper Items Styles */
+.papers-list {
+    display: grid;
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.paper-item {
+    background: white;
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    border-left: 4px solid #3b82f6;
+    transition: transform 0.3s;
+}
+
+.paper-item:hover {
+    transform: translateY(-2px);
+}
+
+.paper-item h4 {
+    color: #1e3a8a;
+    margin-bottom: 1rem;
+    font-size: 1.3rem;
+}
+
+.paper-item h4 a {
+    text-decoration: none;
+    color: inherit;
+}
+
+.paper-item h4 a:hover {
+    text-decoration: underline;
+}
+
+.paper-item .authors {
+    color: #666;
+    font-weight: 500;
+    margin-bottom: 1rem;
+}
+
+.paper-item .abstract {
+    color: #333;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+}
+
+.paper-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    font-size: 0.9rem;
+}
+
+.paper-meta span {
+    background: #f8fafc;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    border: 1px solid #e2e8f0;
+}
+
+.paper-meta a {
+    color: #3b82f6;
+    text-decoration: none;
+}
+
+.paper-meta a:hover {
+    text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+    .paper-meta {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+}
