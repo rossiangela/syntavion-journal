@@ -1,14 +1,25 @@
 {
-  "title": "Diagnosing Parkinson's Disease from Voice Using Random Forest",
-  "description": "Machine learning system for Parkinson's diagnosis...",
+  "title": "Diagnosing Parkinson's Disease from Voice Using Random Forest and Conversion in TensorFlow Lite",
+  "description": "Machine learning system for Parkinson's diagnosis through voice analysis with 92% accuracy, converted to TensorFlow Lite for mobile deployment.",
+  "creators": [
+    {
+      "name": "Rossi, Angela",
+      "affiliation": "Syntavion Publishing",
+      "orcid": "0009-0001-8485-8666"
+    }
+  ],
+  "keywords": [
+    "Parkinson's disease",
+    "voice analysis",
+    "medical diagnostics"
+  ],
+  "license": "CC-BY-4.0",
   "upload_type": "publication",
   "publication_type": "article",
-  "communities": [{"identifier": "syntavionjournal"}],
-  "related_identifiers": [
+  "access_right": "open",
+  "communities": [
     {
-      "identifier": "10.5281/zenodo.15870031",  # DOI del Journal
-      "relation": "isPartOf",
-      "resource_type": "publication-journal"
+      "identifier": "syntavionjournal"
     }
   ]
 }
