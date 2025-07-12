@@ -13,7 +13,7 @@ authors:
   email: angela.rossi393@gmail.com
   name: Angela Rossi
   orcid: 0009-0001-8485-8666
-doi: 10.5281/zenodo.15870811
+doi: 10.5281/zenodo.15870821
 field: Biomedical Engineering
 issue: 1
 keywords:
@@ -31,4 +31,4 @@ submission_date: '2025-01-15'
 title: Diagnosing Parkinson's Disease from Voice Using Random Forest and Conversion
   in TensorFlow Lite
 volume: 1
-zenodo_id: 15870811
+zenodo_id: 15870821
