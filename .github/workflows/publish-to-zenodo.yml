@@ -1,0 +1,64 @@
+name: Publish Paper to Zenodo
+
+on:
+  workflow_dispatch:
+    inputs:
+      paper_path:
+        description: 'Path to paper directory (e.g., papers/2025/001-parkinson-voice)'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  publish-zenodo:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install pyyaml requests markdown jinja2
+
+      - name: Validate paper
+        run: |
+          echo "✅ Validating ${{ github.event.inputs.paper_path }}"
+          python scripts/validate_submission.py "${{ github.event.inputs.paper_path }}"
+
+      - name: Upload to Zenodo
+        env:
+          ZENODO_TOKEN: ${{ secrets.ZENODO_TOKEN }}
+        run: |
+          echo "📤 Uploading to Zenodo..."
+          python scripts/zenodo_upload.py "${{ github.event.inputs.paper_path }}"
+
+      - name: Generate paper page
+        run: |
+          echo "📄 Generating paper page..."
+          python scripts/generate_paper_page.py "${{ github.event.inputs.paper_path }}"
+
+      - name: Update archives
+        run: |
+          echo "📚 Updating archives..."
+          python scripts/generate_archives.py
+
+      - name: Commit changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "Syntavion Journal Bot"
+          git add .
+          if git diff --staged --quiet; then
+            echo "ℹ️ No changes to commit"
+          else
+            git commit -m "📄 Published paper: ${{ github.event.inputs.paper_path }} [skip ci]"
+            git push
+          fi
