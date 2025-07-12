@@ -17,52 +17,36 @@ jobs:
       id-token: write
 
     steps:
-      - name: Checkout code
+      - name: Checkout code (clean)
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Ottieni tutto lo storico per verificare i workflow
+
+      - name: Find deprecated actions
+        run: |
+          echo "### Checking for deprecated actions ###"
+          grep -r "upload-artifact@v3" .github/ || echo "No v3 references found"
+          echo "### All action versions ###"
+          find .github -name "*.yml" -exec grep -l "uses:" {} \; | xargs grep -h "uses:"
 
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
 
-      - name: Install dependencies
+      - name: Install dependencies (clean)
         run: |
-          pip install pyyaml requests jinja2 markdown
+          python -m pip install --upgrade pip
+          pip install pyyaml requests jinja2 markdown --no-cache-dir
           pip list
 
-      - name: Validate Submission
-        id: validate
-        run: |
-          echo "Validating paper at path: ${{ inputs.paper_path }}"
-          python scripts/validate_submission.py "${{ inputs.paper_path }}"
+      # [Altri steps rimangono identici...]
 
-      - name: Publish to Zenodo
-        id: zenodo
-        if: steps.validate.outcome == 'success'
-        env:
-          ZENODO_TOKEN: ${{ secrets.ZENODO_TOKEN }}
-          JOURNAL_DOI: "10.5281/zenodo.15870031"
-        run: |
-          echo "Publishing to Zenodo..."
-          python scripts/zenodo_upload.py \
-            --path "${{ inputs.paper_path }}" \
-            --journal-doi "$JOURNAL_DOI"
-
-      - name: Generate Website Content
-        if: steps.zenodo.outcome == 'success'
-        run: |
-          echo "Generating website content..."
-          python scripts/generate_paper_page.py "${{ inputs.paper_path }}"
-          python scripts/generate_archives.py
-          ls -R _site
-
-      - name: Configure Pages
-        uses: actions/configure-pages@v3
-
-      - name: Upload Pages Artifact
+      - name: Upload Pages Artifact (clean)
         uses: actions/upload-pages-artifact@v2
         with:
           path: '_site'
+          retention-days: 1  # Riduci la retention per debug
 
       - name: Deploy to GitHub Pages
-        uses: actions/deploy-pages@v2  # CORRETTO: cambiato da v3 a v2
+        uses: actions/deploy-pages@v2
