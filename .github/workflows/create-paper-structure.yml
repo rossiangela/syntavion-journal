@@ -1,4 +1,4 @@
-      - name: Create paper directory structure
+      name: Create paper directory structure
         run: |
           PAPER_DIR=papers/${{ github.event.inputs.year }}/${{ github.event.inputs.paper_id }}
           if [ -d "$PAPER_DIR" ]; then
