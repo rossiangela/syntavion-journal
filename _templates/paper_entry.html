@@ -1,0 +1,17 @@
+<div class="paper-entry">
+  <h3>
+    <a href="https://zenodo.org/records/{{ zenodo_id }}" target="_blank">
+      {{ title }}
+    </a>
+  </h3>
+  <p class="authors">{{ authors | join: ", " }}</p>
+  <p class="meta">
+    DOI: <a href="https://doi.org/{{ doi }}" target="_blank">{{ doi }}</a> | 
+    {{ year }} - Vol. {{ volume }}, No. {{ issue }}
+  </p>
+  <button class="download-btn">
+    <a href="https://zenodo.org/records/{{ zenodo_id }}/files/paper.pdf" download>
+      Download PDF
+    </a>
+  </button>
+</div>
