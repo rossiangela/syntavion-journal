@@ -1,4 +1,4 @@
-name: Publish Paper to Zenodo
+name: Publish Paper to Zenodo and Deploy Site
 
 on:
   workflow_dispatch:
@@ -29,33 +29,42 @@ jobs:
           echo "✅ Validating ${{ github.event.inputs.paper_path }}"
           python scripts/validate_submission.py "${{ github.event.inputs.paper_path }}"
 
-      - name: Upload to Zenodo and generate pages
+      - name: Process publication
         env:
           ZENODO_TOKEN: ${{ secrets.ZENODO_TOKEN }}
+          ZENODO_DOI: "10.5281/zenodo.15870031"
+          SITE_URL: "http://syntavionjournal.org"
         run: |
-          echo "🔄 Processing ${{ github.event.inputs.paper_path }}"
+          # Estrai ID Zenodo
+          ZENODO_ID=$(echo "$ZENODO_DOI" | cut -d'.' -f4)
           
           # Upload to Zenodo
-          echo "📤 Uploading to Zenodo..."
-          python scripts/zenodo_upload.py "${{ github.event.inputs.paper_path }}"
-          
-          # Generate paper page
-          echo "📄 Generating paper page..."
-          python scripts/generate_paper_page.py "${{ github.event.inputs.paper_path }}"
+          echo "📤 Uploading to Zenodo (DOI: $ZENODO_DOI)..."
+          python scripts/zenodo_upload.py \
+            --path "${{ github.event.inputs.paper_path }}" \
+            --doi "$ZENODO_DOI"
 
-      - name: Update archives
-        run: |
-          echo "📚 Updating archives..."
-          python scripts/generate_archives.py
+          # Genera pagine
+          echo "📄 Generating web pages..."
+          python scripts/generate_paper_page.py \
+            --path "${{ github.event.inputs.paper_path }}" \
+            --doi "$ZENODO_DOI" \
+            --url "$SITE_URL"
 
-      - name: Commit and push changes
+          # Aggiorna archivi
+          python scripts/generate_archives.py \
+            --doi "$ZENODO_DOI" \
+            --zenodo-id "$ZENODO_ID" \
+            --paper-path "${{ github.event.inputs.paper_path }}"
+
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v2
+        with:
+          target-branch: gh-pages
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Verify deployment
         run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "Syntavion Journal Bot"
-          git add .
-          if git diff --staged --quiet; then
-            echo "ℹ️ No changes to commit"
-          else
-            git commit -m "📄 Published paper: ${{ github.event.inputs.paper_path }} [skip ci]"
-            git push
-          fi
+          echo "✅ Publication complete!"
+          echo "📚 Paper available at: http://syntavionjournal.org/archives.html"
+          echo "🔗 Zenodo record: https://doi.org/$ZENODO_DOI"
