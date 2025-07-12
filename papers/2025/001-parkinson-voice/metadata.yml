@@ -1,0 +1,42 @@
+title: "Diagnosing Parkinson's Disease from Voice Using Random Forest and Conversion in TensorFlow Lite"
+authors:
+  - name: "Angela Rossi"
+    affiliation: "Syntavion Publishing"
+    email: "angela.rossi393@gmail.com"
+    orcid: "0009-0001-8485-8666"
+
+abstract: |
+  This project presents a machine learning system for diagnosing Parkinson's disease 
+  through voice analysis using Random Forest classification. The model achieved 92% 
+  overall accuracy and 97% recall for Parkinson's patients, with an AUC-ROC of 0.96. 
+  The trained model was successfully converted to TensorFlow Lite for deployment on 
+  mobile devices and embedded systems, enabling real-time diagnostic support in 
+  clinical settings. The system analyzes 22 voice features including jitter, shimmer, 
+  and harmonic-to-noise ratios to distinguish between healthy individuals and those 
+  with Parkinson's disease.
+
+keywords: 
+  - "Parkinson's disease"
+  - "voice analysis"
+  - "machine learning"
+  - "Random Forest"
+  - "TensorFlow Lite"
+  - "medical diagnosis"
+  - "mobile health"
+  - "biomedical engineering"
+
+# Publication info
+submission_date: "2025-01-15"
+acceptance_date: "2025-01-16"
+publication_date: "2025-01-20"
+doi: null
+zenodo_id: null
+
+# Journal metadata
+volume: 1
+issue: 1
+article_number: 1
+field: "Biomedical Engineering"
+license: "CC BY 4.0"
+
+---
