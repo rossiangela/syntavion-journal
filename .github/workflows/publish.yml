@@ -20,7 +20,7 @@ jobs:
       - name: Checkout code (clean)
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Necessario se verifichi i workflow
+          fetch-depth: 0
 
       - name: Setup Python
         uses: actions/setup-python@v4
@@ -40,16 +40,12 @@ jobs:
       - name: Generate site
         run: |
           echo "📄 Generating web pages into _site/"
-          mkdir -p _site
-          python scripts/generate_paper_page.py \
-            --path "${{ github.event.inputs.paper_path }}" \
-            --url "https://syntavioninstitute.org"
+          python scripts/generate_paper_page.py "${{ github.event.inputs.paper_path }}" --url "https://syntavioninstitute.org"
 
       - name: Generate archives (optional)
         run: |
           echo "📁 Updating archives"
-          python scripts/generate_archives.py \
-            --paper-path "${{ github.event.inputs.paper_path }}"
+          python scripts/generate_archives.py --paper-path "${{ github.event.inputs.paper_path }}"
 
       - name: Check _site exists
         run: |
@@ -62,7 +58,7 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           path: '_site'
-          retention-days: 1  # Retention ridotta per debug
+          retention-days: 1
 
       - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v2
