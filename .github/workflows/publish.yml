@@ -1,35 +1,53 @@
 name: Update Website
-  env:
-    ZENODO_DOI: "10.5281/zenodo.15870031"
-    ZENODO_ID: "15870031"  # Estraibile automaticamente
-  run: |
-    # Estrae l'ID dal DOI
-    ZENODO_ID=$(echo "$ZENODO_DOI" | cut -d'.' -f4)
-    
-    # Genera la nuova entry HTML
-    python -c "
-    from jinja2 import Template
-    import yaml
-    
-    with open('_templates/paper_entry.html') as f:
-        template = Template(f.read())
-    
-    with open('papers/${{ inputs.year }}/${{ inputs.paper_id }}/metadata.yml') as f:
-        data = yaml.safe_load(f)
-    
-    html_entry = template.render(
-        zenodo_id='$ZENODO_ID',
-        doi='$ZENODO_DOI',
-        title=data['title'],
-        authors=[author['name'] for author in data['authors']],
-        volume=data['volume'],
-        issue=data['issue'],
-        year='${{ inputs.year }}'
-    )
-    
-    # Inietta nel file del sito
-    with open('docs/archives.html', 'r+') as f:
-        content = f.read()
-        f.seek(0)
-        f.write(content.replace('<!-- NEW_ENTRIES -->', f'{html_entry}\n<!-- NEW_ENTRIES -->'))
-    "
+
+on:
+  workflow_dispatch:
+    inputs:
+      year:
+        description: 'Publication year'
+        required: true
+      paper_id:
+        description: 'Paper ID'
+        required: true
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Update website
+        env:
+          ZENODO_DOI: "10.5281/zenodo.15870031"
+          ZENODO_ID: "15870031"  # Estraibile automaticamente
+        run: |
+          # Estrae l'ID dal DOI
+          ZENODO_ID=$(echo "$ZENODO_DOI" | cut -d'.' -f4)
+          
+          # Genera la nuova entry HTML
+          python -c "
+          from jinja2 import Template
+          import yaml
+          
+          with open('_templates/paper_entry.html') as f:
+              template = Template(f.read())
+          
+          with open('papers/${{ inputs.year }}/${{ inputs.paper_id }}/metadata.yml') as f:
+              data = yaml.safe_load(f)
+          
+          html_entry = template.render(
+              zenodo_id='$ZENODO_ID',
+              doi='$ZENODO_DOI',
+              title=data['title'],
+              authors=[author['name'] for author in data['authors']],
+              volume=data['volume'],
+              issue=data['issue'],
+              year='${{ inputs.year }}'
+          )
+          
+          # Inietta nel file del sito
+          with open('docs/archives.html', 'r+') as f:
+              content = f.read()
+              f.seek(0)
+              f.write(content.replace('<!-- NEW_ENTRIES -->', f'{html_entry}\n<!-- NEW_ENTRIES -->'))
+          "
