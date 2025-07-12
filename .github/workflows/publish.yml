@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: 
       name: github-pages
-      url: https://syntavionjournal.org  # Usa HTTPS esplicitamente
+      url: https://syntavionjournal.org
 
     steps:
       - uses: actions/checkout@v4
@@ -25,6 +25,9 @@ jobs:
       - name: Install dependencies
         run: pip install pyyaml requests jinja2
 
+      - name: Validate Submission
+        run: python scripts/validate_submission.py "${{ inputs.paper_path }}"
+
       - name: Process Publication
         env:
           ZENODO_TOKEN: ${{ secrets.ZENODO_TOKEN }}
@@ -33,9 +36,25 @@ jobs:
           # Estrai ID Zenodo
           ZENODO_ID=$(echo "$ZENODO_DOI" | cut -d'.' -f4)
           
-          # Elabora il paper
-          python scripts/zenodo_upload.py "${{ inputs.paper_path }}"
-          python scripts/generate_pages.py "${{ inputs.paper_path }}"
+          # Upload to Zenodo
+          echo "📤 Uploading to Zenodo..."
+          python scripts/zenodo_upload.py \
+            --path "${{ inputs.paper_path }}" \
+            --doi "$ZENODO_DOI" \
+            --deposit-id "$ZENODO_ID"
+
+          # Generate paper page
+          echo "📄 Generating paper page..."
+          python scripts/generate_paper_page.py \
+            --path "${{ inputs.paper_path }}" \
+            --doi "$ZENODO_DOI"
+
+          # Update archives
+          echo "📚 Updating archives..."
+          python scripts/generate_archives.py \
+            --doi "$ZENODO_DOI" \
+            --zenodo-id "$ZENODO_ID" \
+            --paper-path "${{ inputs.paper_path }}"
 
       - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v2
@@ -43,10 +62,11 @@ jobs:
           target-branch: gh-pages
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Verify HTTPS
+      - name: Verify Deployment
         run: |
-          if curl -s https://syntavionjournal.org | grep "Your Paper Title"; then
+          if curl -sI https://syntavionjournal.org | grep "200 OK"; then
             echo "✅ Sito pubblicato con HTTPS"
           else
-            echo "⚠️ Attenzione: HTTPS non attivo!"
+            echo "⚠️ Attenzione: problemi con il deploy"
+            exit 1
           fi
